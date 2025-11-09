@@ -1,0 +1,17 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy AI honeypot code
+COPY ai-honeypot/ ./ai-honeypot/
+
+# Create directories
+RUN mkdir -p /home/claude/ai-honeypot/logs /home/claude/ai-honeypot/configs
+
+EXPOSE 2222
+
+CMD ["python", "ai-honeypot/ai_honeypot.py"]

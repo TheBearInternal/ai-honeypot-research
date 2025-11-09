@@ -1,0 +1,92 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+venv/
+env/
+ENV/
+.venv
+
+# Logs and data (sensitive - never commit)
+logs/
+*.log
+*.jsonl
+
+# SSH keys (NEVER commit these!)
+configs/ssh_host_key*
+*.pem
+*.key
+id_rsa*
+
+# Environment variables (contain API keys)
+.env
+.env.local
+.env.production
+
+# Analysis outputs (can regenerate)
+analysis/output/
+analysis/*.csv
+analysis/*.xlsx
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.spyderproject
+.spyproject
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# Docker
+.dockerignore
+
+# Research data (keep private - real attack data)
+data/
+results/
+backups/
+*.tar.gz
+*.zip
+
+# Jupyter Notebooks checkpoints
+.ipynb_checkpoints
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Temporary files
+*.tmp
+*.bak
+*~

@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  ai-honeypot:
+    build:
+      context: .
+      dockerfile: Dockerfile.ai
+    container_name: ai-honeypot
+    ports:
+      - "2222:2222"
+    volumes:
+      - ./logs:/home/claude/ai-honeypot/logs
+      - ./configs:/home/claude/ai-honeypot/configs
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+    restart: unless-stopped
+    networks:
+      - honeypot-net
+
+  traditional-honeypot:
+    build:
+      context: .
+      dockerfile: Dockerfile.traditional
+    container_name: traditional-honeypot
+    ports:
+      - "2223:2223"
+    volumes:
+      - ./logs:/home/claude/ai-honeypot/logs
+      - ./configs:/home/claude/ai-honeypot/configs
+    restart: unless-stopped
+    networks:
+      - honeypot-net
+
+  traffic-generator:
+    build:
+      context: .
+      dockerfile: Dockerfile.traffic
+    container_name: traffic-generator
+    volumes:
+      - ./logs:/home/claude/ai-honeypot/logs
+    restart: unless-stopped
+    networks:
+      - honeypot-net
+    depends_on:
+      - ai-honeypot
+      - traditional-honeypot
+
+  # Optional: Ollama for local LLM (requires GPU)
+  # ollama:
+  #   image: ollama/ollama:latest
+  #   container_name: ollama
+  #   ports:
+  #     - "11434:11434"
+  #   volumes:
+  #     - ollama-data:/root/.ollama
+  #   networks:
+  #     - honeypot-net
+
+networks:
+  honeypot-net:
+    driver: bridge
+
+volumes:
+  ollama-data:

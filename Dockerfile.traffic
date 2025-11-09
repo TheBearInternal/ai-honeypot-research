@@ -1,0 +1,12 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY traffic-gen/ ./traffic-gen/
+
+RUN mkdir -p /home/claude/ai-honeypot/logs
+
+CMD ["python", "traffic-gen/traffic_generator.py"]
