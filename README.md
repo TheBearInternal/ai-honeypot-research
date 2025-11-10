@@ -6,7 +6,7 @@
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Research](https://img.shields.io/badge/Research-Bachelor's%20Thesis-orange)](.)
 
-A bachelor's research project exploring how AI-enhanced honeypots can outperform traditional static honeypots by leveraging "Dead Internet Theory" concepts and LLM-powered adaptive deception.
+A research project exploring how AI-enhanced honeypots can outperform traditional static honeypots by leveraging "Dead Internet Theory" concepts and LLM-powered adaptive deception.
 
 ## 🎯 Project Overview
 
@@ -66,7 +66,7 @@ This research demonstrates that **AI-powered honeypots can engage attackers 200-
 
 ```bash
 # Clone repository
-git clone https://github.com/YOUR_USERNAME/ai-honeypot-research.git
+git clone https://github.com/TheBearInternal/ai-honeypot-research.git
 cd ai-honeypot-research
 
 # Run setup
@@ -245,7 +245,7 @@ If you use this work in your research, please cite:
   title = {AI-Enhanced Honeypots: Dead Internet Theory Meets Deception Technology},
   year = {2024},
   publisher = {GitHub},
-  url = {https://github.com/YOUR_USERNAME/ai-honeypot-research}
+  url = {https://github.com/TheBearInternal/ai-honeypot-research}
 }
 ```
 
@@ -259,7 +259,7 @@ If you use this work in your research, please cite:
 ## 📞 Support
 
 For questions or issues:
-- Open an [Issue](https://github.com/YOUR_USERNAME/ai-honeypot-research/issues)
+- Open an [Issue](https://github.com/TheBearInternal/ai-honeypot-research/issues)
 - Check [Documentation](docs/)
 
 ## 🎯 Project Status
@@ -272,7 +272,7 @@ For questions or issues:
 
 ## ⭐ Acknowledgments
 
-Built for bachelor's research project exploring AI in cybersecurity.
+Built for a research project exploring AI in cybersecurity.
 
 ---
 
