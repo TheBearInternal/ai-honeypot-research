@@ -117,7 +117,7 @@ python ai-honeypot/ai_honeypot.py
 python ai-honeypot/ai_honeypot.py
 ```
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 ai-honeypot-research/
@@ -157,7 +157,7 @@ AI-enhanced honeypots engage attackers significantly longer than traditional sta
 - Attacker skill classification (AI-only)
 - Attack intent identification (AI-only)
 
-## 📊 Data Collection
+##  Data Collection
 
 ### Run Analysis
 
@@ -184,7 +184,7 @@ python analysis/analyzer.py
 # Exports to: analysis/commands.csv, analysis/auth_attempts.csv
 ```
 
-## 🎓 Novel Contributions
+##  Novel Contributions
 
 1. **First** LLM-enhanced honeypot comparison study
 2. **First** automated attacker profiling in honeypots
@@ -207,7 +207,7 @@ python analysis/analyzer.py
 - ❌ Connect to internal networks
 - ❌ Run on systems with actual data
 
-## 📈 Deployment Options
+##  Deployment Options
 
 ### Local Testing
 ```bash
@@ -220,8 +220,13 @@ python ai-honeypot/ai_honeypot.py
 docker-compose up -d
 ```
 
-### Production VPS
-See [DEPLOYMENT.md](docs/DEPLOYMENT.md) for complete guide
+### Production Deployment
+
+**See our comprehensive deployment guides:**
+- [Complete Deployment Tutorial](COMPLETE_DEPLOYMENT_TUTORIAL.md) - Full step-by-step guide
+- [AWS EC2 Deployment](AWS_EC2_DEPLOYMENT_GUIDE.md) - Deploy to AWS Free Tier
+- [Deployment Quickstart](DEPLOYMENT_QUICKSTART.md) - Quick reference
+- [AWS Quick Checklist](AWS_QUICK_CHECKLIST.md) - AWS deployment checklist
 
 ##  Contributing
 
@@ -231,7 +236,7 @@ This is a research project, but contributions are welcome:
 - Additional traffic patterns
 - Analysis enhancements
 
-## 📄 License
+##  License
 
 MIT License - See [LICENSE](LICENSE)
 
@@ -241,18 +246,21 @@ If you use this work in your research, please cite:
 
 ```bibtex
 @misc{ai-honeypot-research,
-  author = {Your Name},
-  title = {AI-Enhanced Honeypots},
+  author = {Abdon [Your Last Name]},
+  title = {AI-Enhanced Honeypots: Dead Internet Theory Meets Deception Technology},
   year = {2024},
   publisher = {GitHub},
   url = {https://github.com/TheBearInternal/ai-honeypot-research}
 }
 ```
 
-## 🔗 Documentation
+##  Documentation
 
 - [Quick Start Guide](QUICKSTART.md)
-- [Deployment Guide](docs/DEPLOYMENT.md)
+- [Complete Deployment Tutorial](COMPLETE_DEPLOYMENT_TUTORIAL.md)
+- [AWS EC2 Deployment Guide](AWS_EC2_DEPLOYMENT_GUIDE.md)
+- [Deployment Quickstart](DEPLOYMENT_QUICKSTART.md)
+- [AWS Quick Checklist](AWS_QUICK_CHECKLIST.md)
 - [Feature Comparison](docs/COMPARISON.md)
 - [Research Methodology](docs/RESEARCH.md)
 
@@ -262,6 +270,14 @@ For questions or issues:
 - Open an [Issue](https://github.com/TheBearInternal/ai-honeypot-research/issues)
 - Check [Documentation](docs/)
 
+##  Project Status
+
+- ✅ Development: Complete
+- ✅ Local Testing: Ready
+- ✅ Documentation: Complete
+- ✅ Deployment Guides: Complete
+- ⏳ Data Collection: Ready to Deploy
+- ⏳ Research Paper: Pending
 
 ---
 
