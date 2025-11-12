@@ -223,7 +223,7 @@ docker-compose up -d
 ### Production VPS
 See [DEPLOYMENT.md](docs/DEPLOYMENT.md) for complete guide
 
-## 🤝 Contributing
+##  Contributing
 
 This is a research project, but contributions are welcome:
 - Bug fixes
@@ -235,7 +235,7 @@ This is a research project, but contributions are welcome:
 
 MIT License - See [LICENSE](LICENSE)
 
-## 📚 Citation
+##  Citation
 
 If you use this work in your research, please cite:
 
@@ -261,7 +261,6 @@ If you use this work in your research, please cite:
 For questions or issues:
 - Open an [Issue](https://github.com/TheBearInternal/ai-honeypot-research/issues)
 - Check [Documentation](docs/)
-
 
 
 ---

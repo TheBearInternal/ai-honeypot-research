@@ -1,4 +1,4 @@
-# 🎯 DEPLOYMENT CHECKLIST - Start Here!
+#  DEPLOYMENT CHECKLIST - Start Here!
 
 ## ✅ What You Have Now
 
@@ -13,7 +13,7 @@ Your complete AI-enhanced honeypot research system is ready:
 - ✅ **Docker Deployment** ready
 - ✅ **~1,700 lines** of production code
 
-## 🚀 Getting Started (Choose Your Path)
+##  Getting Started (Choose Your Path)
 
 ### Path A: Quick Local Test (15 minutes)
 **Goal**: Verify everything works
@@ -128,7 +128,7 @@ docker-compose logs -f
 
 ---
 
-## 🧪 Testing Checklist
+##  Testing Checklist
 
 Run this after deployment:
 
@@ -183,7 +183,7 @@ python test_simulator.py
 
 ---
 
-## 📊 Data Collection Checklist
+##  Data Collection Checklist
 
 Once deployed to VPS:
 
@@ -212,7 +212,7 @@ Once deployed to VPS:
 
 ---
 
-## 📝 Research Paper Checklist
+##  Research Paper Checklist
 
 ### Data Collected
 - [ ] Minimum 30 sessions per honeypot
@@ -351,7 +351,7 @@ ssh -vvv user@localhost -p 2222
 
 ---
 
-## 🎯 Your Timeline
+##  Your Timeline
 
 | Phase | Duration | Goal |
 |-------|----------|------|
