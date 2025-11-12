@@ -8,7 +8,7 @@
 
 A research project exploring how AI-enhanced honeypots can outperform traditional static honeypots by leveraging "Dead Internet" concepts and LLM-powered adaptive deception.
 
-## 🎯 Project Overview
+##  Project Overview
 
 This research demonstrates that **AI-powered honeypots can engage attackers 200-400% longer** than traditional static honeypots through:
 
@@ -26,7 +26,7 @@ This research demonstrates that **AI-powered honeypots can engage attackers 200-
 | **Commands/Session** | 5-8 | 12-20 | **+140-250%** |
 | **Intelligence Gathered** | Basic logs | Attacker profiles + intent | **Novel** |
 
-## 🏗️ Architecture
+##  Architecture
 
 ```
 ┌─────────────────────────────────────────────────┐
@@ -54,7 +54,7 @@ This research demonstrates that **AI-powered honeypots can engage attackers 200-
          └──────────────┘
 ```
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### Prerequisites
 
@@ -192,7 +192,7 @@ python analysis/analyzer.py
 4. **First** adaptive response strategy based on attacker skill
 5. **First** dynamic document generation in deception technology
 
-## 🛡️ Security Considerations
+##  Security Considerations
 
 ⚠️ **CRITICAL: Never run on production systems!**
 
@@ -223,7 +223,7 @@ docker-compose up -d
 ### Production VPS
 See [DEPLOYMENT.md](docs/DEPLOYMENT.md) for complete guide
 
-## 🤝 Contributing
+##  Contributing
 
 This is a research project, but contributions are welcome:
 - Bug fixes
@@ -235,7 +235,7 @@ This is a research project, but contributions are welcome:
 
 MIT License - See [LICENSE](LICENSE)
 
-## 📚 Citation
+##  Citation
 
 If you use this work in your research, please cite:
 
@@ -256,13 +256,13 @@ If you use this work in your research, please cite:
 - [Feature Comparison](docs/COMPARISON.md)
 - [Research Methodology](docs/RESEARCH.md)
 
-## 📞 Support
+##  Support
 
 For questions or issues:
 - Open an [Issue](https://github.com/TheBearInternal/ai-honeypot-research/issues)
 - Check [Documentation](docs/)
 
-## 🎯 Project Status
+##  Project Status
 
 - ✅ Development: Complete
 - ✅ Local Testing: Ready
