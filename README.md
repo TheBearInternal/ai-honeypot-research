@@ -1,12 +1,12 @@
 # AI-Enhanced Honeypot Research Project
 
-> **Comparing Traditional vs AI-Powered Honeypots using Dead Internet Theory**
+> **Comparing Traditional vs AI-Powered Honeypots **
 
 [![Python](https://img.shields.io/badge/Python-3.8%2B-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Research](https://img.shields.io/badge/Research-Bachelor's%20Thesis-orange)](.)
 
-A research project exploring how AI-enhanced honeypots can outperform traditional static honeypots by leveraging "Dead Internet Theory" concepts and LLM-powered adaptive deception.
+A research project exploring how AI-enhanced honeypots can outperform traditional static honeypots by leveraging "Dead Internet" concepts and LLM-powered adaptive deception.
 
 ## 🎯 Project Overview
 
@@ -188,7 +188,7 @@ python analysis/analyzer.py
 
 1. **First** LLM-enhanced honeypot comparison study
 2. **First** automated attacker profiling in honeypots
-3. **First** AI-driven "dead internet" traffic simulation
+3. **First** AI-driven traffic simulation
 4. **First** adaptive response strategy based on attacker skill
 5. **First** dynamic document generation in deception technology
 
@@ -242,7 +242,7 @@ If you use this work in your research, please cite:
 ```bibtex
 @misc{ai-honeypot-research,
   author = {Your Name},
-  title = {AI-Enhanced Honeypots: Dead Internet Theory Meets Deception Technology},
+  title = {AI-Enhanced Honeypots},
   year = {2024},
   publisher = {GitHub},
   url = {https://github.com/TheBearInternal/ai-honeypot-research}
