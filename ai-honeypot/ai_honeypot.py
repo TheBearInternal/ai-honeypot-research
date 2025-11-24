@@ -24,7 +24,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger('AI-Honeypot')
 
-class AIHoneypotSession:
+class HoneypotSession:
     """Handles individual SSH session with AI-powered responses"""
     
     def __init__(self, username, peer_ip):
@@ -188,181 +188,12 @@ Respond with ONLY the terminal output:"""
                 }
             }
             
-            async with session.post("http://localhost:11434/api/generate", 
-                                   json=payload, timeout=15) as resp:
+            async with session.post("http://localhost:11434/api/generate", json=payload, timeout=15) as resp:
                 result = await resp.json()
                 return result.get("response", "").strip()
     
-    def _generate_doc_fallback(self, filename):
-        """Fallback document generation without AI"""
-        fallback_docs = {
-            "passwords.txt": """# Production Passwords - KEEP SECURE!
-# Last updated: 2024-10-15
-
-MySQL Root: MyS3cr3tP@ss2024!
-FTP Server: ftp_upload_pass123
-API Gateway: api_key_dev_abc123xyz
-Backup Account: backup_user_2024!
-
-# TODO: Rotate these next month
-# Remember to update deployment scripts""",
-            "api_keys.txt": """# API Keys - Production Environment
-AWS_ACCESS_KEY=AKIA3X7MPLEKEY123456
-AWS_SECRET=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
-STRIPE_KEY=sk_live_51HexamplekeyGFHxyz
-SENDGRID_API=SG.ExampleKey123.AbCdEfGhIjKlMnOp""",
-            ".bash_history": """ls -la
-cd /var/www/api
-git pull origin master
-mysql -u root -pMyS3cr3tP@ss2024!
-sudo systemctl restart nginx
-vim /etc/nginx/sites-available/default
-cat /var/log/nginx/error.log
-sudo apt update
-df -h
-ps aux | grep python
-tail -f /var/log/syslog""",
-            "backup.sh": """#!/bin/bash
-# Daily backup script
-# DB Password: MyS3cr3tP@ss2024!
-
-mysqldump -u root -pMyS3cr3tP@ss2024! production_db > /backup/db.sql
-rsync -av /var/www/html backup@192.168.1.50:/backups/
-tar -czf /backup/files_$(date +%Y%m%d).tar.gz /var/www""",
-            "deploy.py": """#!/usr/bin/env python3
-# Deployment script - Production
-# DB: mysql://root:MyS3cr3tP@ss2024!@localhost/prod
-
-import os
-import pymysql
-
-DB_HOST = 'localhost'
-DB_USER = 'root'
-DB_PASS = 'MyS3cr3tP@ss2024!'  # TODO: Move to env vars
-API_KEY = 'sk_live_abc123xyz789'
-
-def deploy():
-    conn = pymysql.connect(host=DB_HOST, user=DB_USER, password=DB_PASS)
-    # ... deployment logic ...""",
-        }
-        return fallback_docs.get(filename, f"# Content of {filename}\n# This file contains sensitive information")
-    
-    def classify_attacker_behavior(self, command):
-        """Classify attacker based on command patterns"""
-        profile = self.fake_system_context['attacker_profile']
-        
-        # Analyze command for sophistication
-        advanced_indicators = ['find', 'grep -r', 'netstat', 'sudo -l', 'crontab', 'awk', 'sed', 'base64', 'curl', 'wget']
-        recon_indicators = ['whoami', 'id', 'uname', 'hostname', 'ls', 'pwd', 'cat /etc/passwd', 'ps']
-        data_theft_indicators = ['cat', 'grep', 'find', 'scp', 'rsync', 'tar', 'zip']
-        privesc_indicators = ['sudo', 'su', 'passwd', 'chmod', 'chown']
-        
-        # Update sophistication score
-        if any(ind in command for ind in advanced_indicators):
-            profile['sophistication_score'] += 2
-        elif any(ind in command for ind in recon_indicators):
-            profile['sophistication_score'] += 1
-        
-        # Classify skill level
-        if profile['sophistication_score'] > 10:
-            profile['skill_level'] = 'advanced'
-        elif profile['sophistication_score'] > 5:
-            profile['skill_level'] = 'intermediate'
-        else:
-            profile['skill_level'] = 'novice'
-        
-        # Determine intent
-        if any(ind in command for ind in privesc_indicators):
-            profile['primary_intent'] = 'privilege_escalation'
-        elif any(ind in command for ind in data_theft_indicators):
-            profile['primary_intent'] = 'data_theft'
-        else:
-            profile['primary_intent'] = 'reconnaissance'
-        
-        # Log behavior pattern
-        profile['behavior_patterns'].append({
-            'command': command,
-            'timestamp': datetime.now().isoformat(),
-            'classification': profile['primary_intent']
-        })
-        
-        return profile
-    
-    def get_fallback_response(self, command):
-        """Fallback responses when LLM unavailable"""
-        cmd = command.strip().lower().split()[0] if command.strip() else ""
-        
-        responses = {
-            "ls": "\n".join(self.fake_system_context['fake_files'].get(
-                self.fake_system_context['current_dir'], 
-                ["file1.txt", "file2.txt"]
-            )),
-            "pwd": self.fake_system_context['current_dir'],
-            "whoami": self.username,
-            "id": f"uid=1001({self.username}) gid=1001({self.username}) groups=1001({self.username}),27(sudo)",
-            "uname": "Linux prod-web-server-02 5.15.0-58-generic #64-Ubuntu SMP x86_64 GNU/Linux",
-            "cat /etc/passwd": "root:x:0:0:root:/root:/bin/bash\nadmin:x:1000:1000::/home/admin:/bin/bash\n" + 
-                               f"{self.username}:x:1001:1001::/home/{self.username}:/bin/bash",
-            "ps aux": "\n".join(self.fake_system_context['fake_processes']),
-            "hostname": self.fake_system_context['hostname'],
-        }
-        
-        # Check for cd command
-        if command.startswith("cd "):
-            new_dir = command.split("cd ", 1)[1].strip()
-            if new_dir in self.fake_system_context['fake_files']:
-                self.fake_system_context['current_dir'] = new_dir
-                return ""
-            else:
-                return f"bash: cd: {new_dir}: No such file or directory"
-        
-        return responses.get(cmd, f"bash: {cmd}: command not found")
-    
-    async def get_ai_response(self, command):
-        """Get AI-powered response to command"""
-        try:
-            # Check if command is reading a file - generate AI content
-            if command.strip().startswith("cat ") or command.strip().startswith("less ") or command.strip().startswith("more "):
-                filename = command.split(maxsplit=1)[1].strip() if len(command.split()) > 1 else ""
-                
-                # Extract just the filename
-                if '/' in filename:
-                    filename = filename.split('/')[-1]
-                
-                # Check if this is a document we should AI-generate
-                ai_gen_files = ["passwords.txt", "api_keys.txt", ".bash_history", "notes.md", 
-                               "todo.txt", "backup.sh", "deploy.py", "id_rsa", "maintenance.sh"]
-                
-                if filename in ai_gen_files:
-                    logger.info(f"Generating AI content for: {filename}")
-                    content = await self.generate_ai_document(filename)
-                    
-                    # Track file access
-                    self.fake_system_context['accessed_files'].append({
-                        'file': filename,
-                        'timestamp': datetime.now().isoformat()
-                    })
-                    
-                    return content
-            
-            # Check if we can use OpenAI API (set via environment variable)
-            if os.getenv("OPENAI_API_KEY"):
-                response = await self._get_openai_response(command)
-            # Check if we can use Ollama (local LLM)
-            elif await self._check_ollama_available():
-                response = await self._get_ollama_response(command)
-            else:
-                # Fallback to static responses
-                logger.warning("No AI backend available, using fallback responses")
-                response = self.get_fallback_response(command)
-            
-            return response
-        except Exception as e:
-            logger.error(f"Error getting AI response: {e}")
-            return self.get_fallback_response(command)
-    
     async def _check_ollama_available(self):
-        """Check if Ollama is running locally"""
+        """Check if Ollama is running"""
         try:
             import aiohttp
             async with aiohttp.ClientSession() as session:
@@ -371,15 +202,213 @@ def deploy():
         except:
             return False
     
+    def _generate_doc_fallback(self, filename):
+        """Generate document using templates when AI is unavailable"""
+        templates = {
+            "passwords.txt": """# Production Passwords - DO NOT SHARE
+# Last updated: 2024-11-15
+
+# Database
+mysql_prod: MySQLr00t!2024
+postgres_main: pg_S3cur3_Pass
+
+# API Keys  
+stripe_live: sk_live_fake123456789
+aws_access: AKIA_FAKE_KEY_12345
+
+# FTP
+backup_ftp: ftpBackup2024!
+deploy_ftp: D3ploy_secure_99
+""",
+            "api_keys.txt": """# API Keys - Production
+# Generated: 2024-11-10
+
+AWS_ACCESS_KEY_ID=AKIA_FAKE_ACCESS_123
+AWS_SECRET_ACCESS_KEY=wJalrXUtn_FAKE_SECRET_KEY_123456
+
+STRIPE_SECRET_KEY=sk_live_fake_stripe_key_12345
+SENDGRID_API_KEY=SG.fake_sendgrid_key.12345
+
+# Slack webhook
+SLACK_WEBHOOK=https://hooks.slack.com/services/FAKE/WEBHOOK/URL
+""",
+            ".bash_history": """ls -la
+cd /var/www
+vim config.php
+mysql -u root -p'MySQLr00t!2024' 
+ps aux | grep nginx
+sudo systemctl restart nginx
+cat /etc/passwd
+whoami
+cd ~/.ssh
+ls -la
+cat id_rsa
+chmod 600 id_rsa
+ssh deploy@prod-server
+cd /home/admin/scripts
+./backup.sh
+history | grep password
+export AWS_ACCESS_KEY=AKIA_FAKE_KEY
+python3 deploy.py
+""",
+            "notes.md": """# Production Server Notes
+
+## Server IPs
+- Web: 10.0.1.50
+- DB: 10.0.1.51
+- Backup: 10.0.1.52
+
+## TODO
+- [ ] Update SSL certs (expires Dec 2024)
+- [ ] Patch security vulnerability CVE-2024-1234
+- [ ] Review firewall rules
+- [ ] Backup user passwords file
+
+## Deploy credentials
+User: deploy
+Pass: D3ploy_prod_2024
+
+## Database
+Host: 10.0.1.51:3306
+User: admin
+Pass: MySQLr00t!2024
+""",
+            "backup.sh": """#!/bin/bash
+# Backup script - runs daily at 2am
+# DB Password: MySQLr00t!2024
+
+DATE=$(date +%Y%m%d)
+BACKUP_DIR="/backups/$DATE"
+
+# Create backup directory
+mkdir -p $BACKUP_DIR
+
+# MySQL dump
+mysqldump -u root -p'MySQLr00t!2024' --all-databases > $BACKUP_DIR/mysql_backup.sql
+
+# Rsync to backup server
+rsync -avz $BACKUP_DIR/ backup@10.0.1.52:/backups/
+
+echo "Backup completed: $DATE"
+""",
+            "deploy.py": """#!/usr/bin/env python3
+# Deployment script
+# AWS Key: AKIA_FAKE_KEY_12345
+
+import os
+import subprocess
+
+# Database connection
+DB_HOST = "10.0.1.51"
+DB_USER = "admin"
+DB_PASS = "MySQLr00t!2024"
+DB_NAME = "production"
+
+# API Keys
+STRIPE_KEY = "sk_live_fake_stripe_key_12345"
+AWS_KEY = "AKIA_FAKE_ACCESS_123"
+
+def deploy():
+    print("Starting deployment...")
+    # Deploy code here
+    pass
+
+if __name__ == "__main__":
+    deploy()
+""",
+            "id_rsa": """-----BEGIN OPENSSH PRIVATE KEY-----
+[This would be an SSH private key]
+[DO NOT distribute this key]
+[Used for production server access]
+-----END OPENSSH PRIVATE KEY-----
+""",
+            "todo.txt": """TODO List - System Administration
+
+HIGH PRIORITY:
+- Apply security patch for CVE-2024-1234
+- Update root password (current: R00t_temp_2024)
+- Review user access permissions
+- Backup /etc/shadow file
+
+MEDIUM:
+- Clean up old log files
+- Update SSL certificates
+- Audit firewall rules
+- Document deployment process
+
+LOW:
+- Organize scripts folder
+- Update documentation
+"""
+        }
+        
+        return templates.get(filename, f"# Content for {filename}\n[File contents would appear here]\n")
+    
+    def classify_attacker_behavior(self, command):
+        """Classify attacker's skill level and intent based on commands"""
+        profile = self.fake_system_context['attacker_profile']
+        
+        # Track behavior patterns
+        profile['behavior_patterns'].append(command)
+        
+        # Skill level indicators
+        novice_indicators = ['help', 'ls', 'pwd', 'whoami', 'cat /etc/passwd']
+        intermediate_indicators = ['find', 'grep', 'ps aux', 'netstat', 'which']
+        advanced_indicators = ['wget', 'curl', 'python', 'perl', 'base64', 'nc ', 'nmap']
+        
+        # Intent indicators
+        recon_commands = ['ls', 'pwd', 'whoami', 'uname', 'id', 'hostname']
+        data_theft = ['cat', 'grep', 'find', 'scp', 'wget', 'curl']
+        privilege_escalation = ['sudo', 'su', 'chmod', 'chown', 'passwd']
+        
+        # Score sophistication
+        if any(indicator in command.lower() for indicator in advanced_indicators):
+            profile['sophistication_score'] = min(profile['sophistication_score'] + 3, 10)
+            profile['skill_level'] = 'advanced'
+        elif any(indicator in command.lower() for indicator in intermediate_indicators):
+            profile['sophistication_score'] = min(profile['sophistication_score'] + 2, 10)
+            if profile['skill_level'] == 'unknown':
+                profile['skill_level'] = 'intermediate'
+        elif any(indicator in command.lower() for indicator in novice_indicators):
+            profile['sophistication_score'] = min(profile['sophistication_score'] + 1, 10)
+            if profile['skill_level'] == 'unknown':
+                profile['skill_level'] = 'novice'
+        
+        # Determine intent
+        if any(cmd in command.lower() for cmd in privilege_escalation):
+            profile['primary_intent'] = 'privilege_escalation'
+        elif any(cmd in command.lower() for cmd in data_theft):
+            if profile['primary_intent'] == 'unknown':
+                profile['primary_intent'] = 'data_theft'
+        elif any(cmd in command.lower() for cmd in recon_commands):
+            if profile['primary_intent'] == 'unknown':
+                profile['primary_intent'] = 'reconnaissance'
+        
+        return profile
+    
+    async def get_ai_response(self, command):
+        """Get AI-powered response to command"""
+        try:
+            # Try AI services in priority order
+            if os.getenv("OPENAI_API_KEY"):
+                return await self._get_openai_response(command)
+            elif await self._check_ollama_available():
+                return await self._get_ollama_response(command)
+            else:
+                return self.get_fallback_response(command)
+        except Exception as e:
+            logger.error(f"AI response error: {e}")
+            return self.get_fallback_response(command)
+    
     async def _get_ollama_response(self, command):
-        """Get response from local Ollama LLM"""
+        """Get response from Ollama"""
         import aiohttp
         
         prompt = self.get_ai_prompt(command)
         
         async with aiohttp.ClientSession() as session:
             payload = {
-                "model": "llama3.2:3b",  # Use smaller model for speed
+                "model": "llama3.2:3b",
                 "prompt": prompt,
                 "stream": False,
                 "options": {
@@ -418,6 +447,74 @@ def deploy():
                                    headers=headers, json=payload) as resp:
                 result = await resp.json()
                 return result["choices"][0]["message"]["content"].strip()
+    
+    def get_fallback_response(self, command):
+        """Generate response without AI"""
+        cmd = command.strip().lower()
+        
+        # Handle cd commands
+        if cmd.startswith('cd '):
+            target = command.split('cd ', 1)[1].strip()
+            if target == '..':
+                parts = self.fake_system_context['current_dir'].split('/')
+                if len(parts) > 2:
+                    self.fake_system_context['current_dir'] = '/'.join(parts[:-1])
+            elif target.startswith('/'):
+                self.fake_system_context['current_dir'] = target
+            elif target == '~':
+                self.fake_system_context['current_dir'] = f"/home/{self.username}"
+            else:
+                # Relative path
+                current = self.fake_system_context['current_dir']
+                new_path = f"{current}/{target}".replace('//', '/')
+                if new_path in self.fake_system_context['fake_files']:
+                    self.fake_system_context['current_dir'] = new_path
+                else:
+                    return f"bash: cd: {target}: No such file or directory"
+            return ""
+        
+        # Handle cat commands for sensitive files
+        if cmd.startswith('cat '):
+            filename = command.split('cat ', 1)[1].strip()
+            basename = filename.split('/')[-1]
+            
+            # Track file access
+            if basename not in self.fake_system_context['accessed_files']:
+                self.fake_system_context['accessed_files'].append(basename)
+            
+            # Return fake sensitive content
+            if basename in ['passwords.txt', 'api_keys.txt', '.bash_history', 'notes.md', 
+                          'backup.sh', 'deploy.py', 'id_rsa', 'todo.txt']:
+                return self._generate_doc_fallback(basename)
+            
+            return f"cat: {filename}: No such file or directory"
+        
+        # Common commands
+        responses = {
+            'ls': '\n'.join(self.fake_system_context['fake_files'].get(self.fake_system_context['current_dir'], ['[empty directory]'])),
+            'pwd': self.fake_system_context['current_dir'],
+            'whoami': self.username,
+            'hostname': self.fake_system_context['hostname'],
+            'uname -a': f"Linux {self.fake_system_context['hostname']} 5.15.0-89-generic #99-Ubuntu SMP x86_64 GNU/Linux",
+            'id': f"uid=1000({self.username}) gid=1000({self.username}) groups=1000({self.username}),27(sudo)",
+            'ps aux': '\n'.join(['USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND'] + 
+                               [f"root      {i+1000}  0.0  0.1 {10000+i*1000}  {2000+i*100} ?        Ss   Nov22   0:05 {proc}" 
+                                for i, proc in enumerate(self.fake_system_context['fake_processes'])]),
+            'ifconfig': """eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 10.0.1.50  netmask 255.255.255.0  broadcast 10.0.1.255
+        inet6 fe80::a00:27ff:fe4e:66a1  prefixlen 64  scopeid 0x20<link>
+        ether 08:00:27:4e:66:a1  txqueuelen 1000  (Ethernet)""",
+            'ip addr': """1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN
+    inet 127.0.0.1/8 scope host lo
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP
+    inet 10.0.1.50/24 brd 10.0.1.255 scope global eth0"""
+        }
+        
+        if cmd in responses:
+            return responses[cmd]
+        
+        # Default for unknown commands
+        return f"bash: {command.split()[0]}: command not found"
     
     def log_command(self, command, response, duration):
         """Log command and response for analysis"""
@@ -486,18 +583,22 @@ class AIHoneypotServer(asyncssh.SSHServer):
         return True
 
 
-class AIHoneypotSession(asyncssh.SSHServerSession):
-    """Interactive session handler"""
+class SSHSessionHandler(asyncssh.SSHServerSession):
+    """Interactive SSH session handler - FIXED VERSION"""
     
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        """Accept asyncssh parameters properly"""
+        super().__init__()
         self._session = None
+        self._chan = None
         
     def connection_made(self, chan):
         self._chan = chan
         peer = chan.get_extra_info('peername')[0]
         username = chan.get_extra_info('username', 'unknown')
         
-        self._session = AIHoneypotSession(username, peer)
+        # Create the session logic handler
+        self._session = HoneypotSession(username, peer)
         logger.info(f"Session started for {username}@{peer}")
         
     def shell_requested(self):
@@ -520,13 +621,16 @@ class AIHoneypotSession(asyncssh.SSHServerSession):
             
             # Get AI response
             start_time = time.time()
-            response = asyncio.create_task(self._session.get_ai_response(command))
             
-            # This is a simplified sync wrapper - in production use proper async
+            # Use asyncio properly
             try:
+                # Get the current event loop
                 loop = asyncio.get_event_loop()
-                result = loop.run_until_complete(response)
-            except:
+                # Schedule the coroutine and wait for it
+                response_future = asyncio.ensure_future(self._session.get_ai_response(command))
+                result = loop.run_until_complete(response_future)
+            except Exception as e:
+                logger.error(f"Error getting AI response: {e}")
                 result = self._session.get_fallback_response(command)
             
             duration = time.time() - start_time
@@ -556,7 +660,7 @@ async def start_honeypot(host='0.0.0.0', port=2222):
         host,
         port,
         server_host_keys=[str(key_file)],
-        session_factory=AIHoneypotSession
+        session_factory=SSHSessionHandler
     )
     
     logger.info(f"AI Honeypot running on port {port}")
