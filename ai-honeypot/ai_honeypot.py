@@ -665,21 +665,37 @@ async def start_honeypot(host='0.0.0.0', port=2222):
     
     logger.info(f"Starting AI Honeypot on {host}:{port}")
     
-    await asyncssh.create_server(
+    # Create server with reuse_address to avoid "address already in use" errors
+    server = await asyncssh.create_server(
         AIHoneypotServer,
         host,
         port,
         server_host_keys=[str(key_file)],
-        session_factory=SSHSessionHandler
+        session_factory=SSHSessionHandler,
+        reuse_address=True
     )
     
     logger.info(f"AI Honeypot running on port {port}")
+    
+    # Keep server running
+    async with server:
+        await server.wait_closed()
+
+
+async def main():
+    """Main entry point"""
+    try:
+        await start_honeypot()
+    except KeyboardInterrupt:
+        logger.info("Shutting down honeypot...")
+    except Exception as e:
+        logger.error(f"Honeypot error: {e}", exc_info=True)
+        raise
 
 
 if __name__ == "__main__":
     # Create logs directory
     Path("/home/claude/ai-honeypot/logs").mkdir(parents=True, exist_ok=True)
     
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(start_honeypot())
-    loop.run_forever()
+    # Run the honeypot
+    asyncio.run(main())
