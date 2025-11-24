@@ -602,10 +602,17 @@ class SSHSessionHandler(asyncssh.SSHServerSession):
         logger.info(f"Session started for {username}@{peer}")
         
     def shell_requested(self):
+        logger.info(f"Shell requested for {self._session.username if self._session else 'unknown'}")
         return True
     
     def session_started(self):
-        self._chan.write(f"{self._session.username}@{self._session.fake_system_context['hostname']}:~$ ")
+        logger.info(f"Session started, sending initial prompt")
+        try:
+            prompt = f"{self._session.username}@{self._session.fake_system_context['hostname']}:~$ "
+            self._chan.write(prompt)
+            logger.info(f"Initial prompt sent: {prompt}")
+        except Exception as e:
+            logger.error(f"Error in session_started: {e}")
     
     def data_received(self, data, datatype):
         # Decode bytes to string if needed
