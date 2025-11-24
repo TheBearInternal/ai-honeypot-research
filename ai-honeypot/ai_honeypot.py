@@ -619,19 +619,12 @@ class SSHSessionHandler(asyncssh.SSHServerSession):
         if command:
             self._session.command_history.append(command)
             
-            # Get AI response
+            # Get response
             start_time = time.time()
             
-            # Use asyncio properly
-            try:
-                # Get the current event loop
-                loop = asyncio.get_event_loop()
-                # Schedule the coroutine and wait for it
-                response_future = asyncio.ensure_future(self._session.get_ai_response(command))
-                result = loop.run_until_complete(response_future)
-            except Exception as e:
-                logger.error(f"Error getting AI response: {e}")
-                result = self._session.get_fallback_response(command)
+            # For now, use fallback responses (AI responses cause async issues in data_received)
+            # TODO: Implement proper async handling with callbacks
+            result = self._session.get_fallback_response(command)
             
             duration = time.time() - start_time
             
