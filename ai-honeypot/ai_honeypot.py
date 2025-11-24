@@ -608,22 +608,30 @@ class SSHSessionHandler(asyncssh.SSHServerSession):
         self._chan.write(f"{self._session.username}@{self._session.fake_system_context['hostname']}:~$ ")
     
     def data_received(self, data, datatype):
-        command = data.strip()
+        # Decode bytes to string if needed
+        if isinstance(data, bytes):
+            try:
+                command = data.decode('utf-8').strip()
+            except:
+                command = data.decode('latin-1').strip()
+        else:
+            command = data.strip()
         
+        # Handle exit commands
         if command.lower() in ['exit', 'logout', 'quit']:
             self._chan.write("\r\nlogout\r\n")
             self._chan.close()
             logger.info(f"Session ended for {self._session.session_id}")
             return
         
+        # Process command if not empty
         if command:
             self._session.command_history.append(command)
             
             # Get response
             start_time = time.time()
             
-            # For now, use fallback responses (AI responses cause async issues in data_received)
-            # TODO: Implement proper async handling with callbacks
+            # Use fallback responses for stability
             result = self._session.get_fallback_response(command)
             
             duration = time.time() - start_time
@@ -632,7 +640,9 @@ class SSHSessionHandler(asyncssh.SSHServerSession):
             
             self._chan.write(f"\r\n{result}\r\n")
         
-        self._chan.write(f"{self._session.username}@{self._session.fake_system_context['hostname']}:{self._session.fake_system_context['current_dir']}$ ")
+        # Always show prompt
+        prompt = f"{self._session.username}@{self._session.fake_system_context['hostname']}:{self._session.fake_system_context['current_dir']}$ "
+        self._chan.write(prompt)
 
 
 async def start_honeypot(host='0.0.0.0', port=2222):
