@@ -371,16 +371,21 @@ def handle_client(client_sock, addr, host_key):
         chan.send(banner.encode("utf-8"))
         
         # Main command loop
-        file_like = chan.makefile('rU')
-        
         while True:
             prompt = f"{session.username}@{session.fake_system_context['hostname']}:{session.fake_system_context['current_dir']}$ "
             chan.send(prompt.encode("utf-8"))
             
-            try:
-                command = file_like.readline().strip()
-                if not command:
-                    continue
+            # Read command using simple recv
+            cmd_bytes = b""
+            while not cmd_bytes.endswith(b"\n"):
+                chunk = chan.recv(1024)
+                if not chunk:
+                    raise EOFError
+                # Echo what user typed
+                chan.send(chunk)
+                cmd_bytes += chunk
+            
+            command = cmd_bytes.decode("utf-8", "ignore").strip()
             
             if not command:
                 continue
